@@ -1,4 +1,4 @@
-import { model, Schema, Types, type Document } from "mongoose";
+import { model, Schema, type Document } from "mongoose";
 
 export interface IUser extends Document {
   email: string;
@@ -6,7 +6,7 @@ export interface IUser extends Document {
   lastName?: string;
   password?: string;
   createdAt: Date;
-  roles: Types.ObjectId[];
+  roles: string[]; 
 }
 
 const userSchema = new Schema<IUser>({
@@ -26,7 +26,7 @@ const userSchema = new Schema<IUser>({
   },
   createdAt: { type: Date, default: Date.now },
   roles: {
-    type: [{ type: Schema.Types.ObjectId, ref: "roles" }],
+    type: [String], 
     validate: {
       validator: function (v: any[]) {
         return v && v.length > 0;

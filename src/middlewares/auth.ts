@@ -20,8 +20,8 @@ export const authentication = createMiddleware(async (c, next) => {
   try {
     const payload = await verify(token, env.JWT_SECRET, "HS256");
     
-    // On charge l'utilisateur ET on remplace les IDs de rôles par les objets Rôles complets
-    const user = await User.findById(payload.sub).populate("roles");
+    // On charge l'utilisateur simple (roles = ["GERANT"])
+    const user = await User.findById(payload.sub);
     
     if (!user) {
       return c.json({ message: "User not found" }, UNAUTHORIZED);

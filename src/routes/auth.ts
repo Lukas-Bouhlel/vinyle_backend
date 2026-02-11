@@ -7,11 +7,10 @@ import { userService } from "@/services/users-service";
 import { BAD_REQUEST, CONFLICT, CREATED, UNAUTHORIZED, OK } from "@/shared/constants/http-status-codes";
 import env from "../../env";
 
-// Schéma : On attend un tableau d'IDs (strings) et il en faut au moins un.
 const registerScheme = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  roles: z.array(z.string()).min(1, "Au moins un ID de rôle est requis"),
+  roles: z.array(z.string()).min(1, "Au moins un rôle est requis"),
 });
 
 const api = new Hono();
@@ -22,10 +21,10 @@ api.post("/register", sValidator("json", registerScheme, async (result, c) => {
     return c.json({ msg: "Invalid inputs", errors: result.error }, BAD_REQUEST);
   }
   
+  // Le body contient roles: ["GERANT"]. Le modèle User accepte ça. C'est parfait.
   const tryToCreate = await userService.createOne(c.req);
   
   if (!tryToCreate.ok) {
-    // Si le validateur Mongoose bloque (tableau vide), l'erreur remontera ici
     return c.json({ msg: tryToCreate.message }, CONFLICT);
   }
   
@@ -42,9 +41,8 @@ api.post("/login", async (c) => {
 
   const { _id, email, roles } = loginResult.data;
 
-  // On extrait les noms des rôles peuplés pour les mettre dans le token
-  // Cela permet au front de savoir qui est connecté (GERANT, DISQUAIRE...) sans connaître les IDs
-  const roleNames = Array.isArray(roles) ? roles.map((r: any) => r.name) : [];
+  // roles est déjà ["GERANT"] (string[])
+  const roleNames = roles || [];
   
   const payload = {
     sub: _id,

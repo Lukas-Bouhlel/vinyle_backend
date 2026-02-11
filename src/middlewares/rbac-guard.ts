@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import { FORBIDDEN, UNAUTHORIZED } from "@/shared/constants/http-status-codes";
 import type { IUser } from "@/models/users";
-import type { IRole } from "@/models/roles";
+import { Role } from "@/models/roles"; // Nécessaire pour chercher les droits
 
 export const rbacGuard = (resource: string, action: string) => 
   createMiddleware(async (c, next) => {
@@ -11,18 +11,17 @@ export const rbacGuard = (resource: string, action: string) =>
       return c.json({ message: "Authentication required" }, UNAUTHORIZED);
     }
 
-    // Ici user.roles est un tableau d'objets car on a fait .populate('roles')
-    const roles = user.roles as unknown as IRole[];
+    // Ici user.roles est un tableau de strings ["GERANT", "DISQUAIRE"]
+    const userRoleNames = user.roles; 
 
-    if (!roles || roles.length === 0) {
+    if (!userRoleNames || userRoleNames.length === 0) {
       return c.json({ message: "No roles assigned" }, FORBIDDEN);
     }
 
-    // On parcourt les objets Rôles complets pour vérifier les autorisations
-    const hasPermission = roles.some((role) => {
-      // Sécurité : si le populate a échoué pour une raison X, on saute
-      if (!role || !role.authorizations) return false;
+    // On récupère les définitions des rôles depuis la base via leurs noms
+    const rolesDefinitions = await Role.find({ name: { $in: userRoleNames } });
 
+    const hasPermission = rolesDefinitions.some((role) => {
       const auth = role.authorizations.find((a) => a.ressource === resource);
       if (!auth) return false;
 
