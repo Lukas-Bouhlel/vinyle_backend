@@ -1,0 +1,32 @@
+{
+  "name": "vinyle_backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "lint": "eslint .",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0",
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@hono/standard-validator": "^0.2.2",
+    "hono": "^4.11.9",
+    "mongoose": "^9.2.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.4.3",
+    "@types/node": "^25.2.3",
+    "eslint": "^10.0.0",
+    "eslint-plugin-format": "^1.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
