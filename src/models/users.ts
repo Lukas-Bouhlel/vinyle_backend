@@ -1,4 +1,4 @@
-import { model, Schema, type Document } from "mongoose";
+import { model, Schema, Types, type Document } from "mongoose";
 
 export interface IUser extends Document {
   email: string;
@@ -6,7 +6,7 @@ export interface IUser extends Document {
   lastName?: string;
   password?: string;
   createdAt: Date;
-  roles: string[];
+  roles: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>({
@@ -26,8 +26,13 @@ const userSchema = new Schema<IUser>({
   },
   createdAt: { type: Date, default: Date.now },
   roles: {
-    type: [String],
-    default: [],
+    type: [{ type: Schema.Types.ObjectId, ref: "roles" }],
+    validate: {
+      validator: function (v: any[]) {
+        return v && v.length > 0;
+      },
+      message: "Un utilisateur doit avoir au moins un rôle.",
+    },
   },
 });
 

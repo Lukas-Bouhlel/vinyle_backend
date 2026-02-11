@@ -11,8 +11,6 @@ import env from "../../env";
 const registerScheme = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
   roles: z.array(z.string()).min(1, "Au moins un ID de rôle est requis"),
 });
 

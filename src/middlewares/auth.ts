@@ -11,7 +11,6 @@ export const authentication = createMiddleware(async (c, next) => {
     return c.json({ message: "Authentication required" }, UNAUTHORIZED);
   }
 
-  // Supporte le format "Bearer <token>" ou juste "<token>"
   const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
   
   if (!token) {
@@ -21,14 +20,13 @@ export const authentication = createMiddleware(async (c, next) => {
   try {
     const payload = await verify(token, env.JWT_SECRET, "HS256");
     
-    // CRITIQUE: On récupère l'user ET ses rôles (populate) pour que le RBAC fonctionne après
+    // On charge l'utilisateur ET on remplace les IDs de rôles par les objets Rôles complets
     const user = await User.findById(payload.sub).populate("roles");
     
     if (!user) {
       return c.json({ message: "User not found" }, UNAUTHORIZED);
     }
 
-    // On injecte le user dans le contexte pour les prochains middlewares (rbacGuard)
     c.set("user", user);
     await next();
   } catch (error) {

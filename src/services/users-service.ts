@@ -17,7 +17,7 @@ export const userService = {
 
   fetchByEmail: async (req: HonoRequest): Promise<IUser | null> => {
     const email = req.param("email");
-    return await User.findOne({ email });
+    return await User.findOne({ email }).populate("roles");
   },
 
   createOne: async (req: HonoRequest): Promise<ServiceResponse<IUser>> => {
@@ -49,11 +49,11 @@ export const userService = {
     try {
       const body = await req.json() as UserLogin;
       
-      // Pas de populate ici non plus
+      // On populate les rôles pour récupérer leurs noms/permissions
       const user = await User.findOne(
         { email: body.email }, 
         "+password" 
-      ).lean();
+      ).populate("roles").lean();
 
       if (!user) {
         return { ok: false, message: "Utilisateur introuvable" };
