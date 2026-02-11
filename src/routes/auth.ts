@@ -53,8 +53,9 @@ api.post("/login", async (c) => {
   
   const token = await sign(payload, env.JWT_SECRET, "HS256");
 
+  c.header("Authorization", `Bearer ${token}`);
+
   return c.json({
-    token,
     user: {
       _id,
       email,
