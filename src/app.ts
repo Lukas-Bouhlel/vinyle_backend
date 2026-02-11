@@ -1,8 +1,9 @@
 import { Hono } from "hono";
-// import { notFound } from "@/middlewares/not-found";
-// import vinyles from "@/routes/vinyles";
-// import auth from "@/routes/auth";
-// import roles from "@/routes/roles";
+import { notFound } from "@/middlewares/not-found";
+import vinyles from "@/routes/vinyles";
+import auth from "@/routes/auth";
+import roles from "@/routes/roles";
+import { authentication } from "./middlewares/auth";
 
 const app = new Hono({ strict: false }).basePath("/v1/api");
 
@@ -10,9 +11,13 @@ app.get("/", (c) => {
   return c.text("Hello Hono 🔥🦆");
 });
 
-// app.route("/vinyles", vinyles); // > donc v1/api/comments
-// app.route("/auth", auth); // > donc v1/api/auth
-// app.route("/roles", roles); // > donc v1/api/roles
-// app.notFound(notFound);
+app.route("/auth", auth);
+
+app.use("/vinyles/*", authentication);
+app.use("/roles/*", authentication);
+app.route("/vinyles", vinyles);
+app.route("/roles", roles);
+
+app.notFound(notFound);
 
 export default app;
